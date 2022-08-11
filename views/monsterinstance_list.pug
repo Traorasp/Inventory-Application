@@ -2,4 +2,12 @@ extends layout
 
 block content
   h1= title
-  p Welcome to #{title}
+  
+  ul 
+    each monster in monsterinstances_list
+      li 
+        a(href=monster.url) #{monster.Name} 
+        p Species: #{monster.Species.Name}
+
+    else
+      li There are no habitats.  

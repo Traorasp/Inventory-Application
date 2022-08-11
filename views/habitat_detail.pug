@@ -1,5 +1,18 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+  h1 Habitat: #{habitat.Name}
+  
+  p= habitat.Description
+
+  div(style='margin-left:20px;margin-top:20px')
+    h4 Monsters 
+    
+    dl 
+      each monster in habitat_monsters 
+        dt  
+          a(href=monster.url) #{monster.Name}
+        dd #{monster.Description}
+
+      else 
+        p This habitat has no monsters 

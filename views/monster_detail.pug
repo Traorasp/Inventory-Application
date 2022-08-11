@@ -1,5 +1,31 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+  h1 Monster: #{monster.Name}
+  
+  p #[Strong Costs:] $#{monster.Price}
+  p #[Strong In Stock: ] #{monster_instances.length}
+  p #[Strong Habitats: ]
+    each val, index in monster.Habitat 
+      a(href=val.url) #{val.Name}
+      if index < monster.Habitat.length - 1
+            |,
+  p #[Strong Element: ]
+    each val, index in monster.Element 
+      a(href=val.url) #{val.Name}
+      if index < monster.Element.length - 1
+            |,
+  
+  p= monster.Description
+
+  div(style='margin-left:20px;margin-top:20px')
+    h4 Monsters Instances
+    
+    dl 
+      each instance in monster_instances 
+        dt  
+          a(href=instance.url) #{instance.Name}
+        dd Age: #{instance.Age}
+
+      else 
+        p This monster has no instance. 

@@ -1,11 +1,38 @@
-let Monster = require('../models/Monster')
+let Monster = require('../models/Monster');
+let MonsterInstance = require('../models/MonsterInstance');
+
+let async = require('async');
 
 exports.monster_list = function(req, res, next) {
-    res.render('index', { title: "monster list tests" });
+    Monster.find().sort({'Name' : 1})
+    .exec(function(err, list_monsters) {
+        if(err) {return next(err);}
+        res.render('monster_list', { title: "Monster List", monster_list: list_monsters});
+    })
 };
 
 exports.monster_detail = function(req, res, next) {
-    res.render('index', { title: "monster detail tests" });
+    async.parallel({
+        monster(callback) {
+            Monster.findById(req.params.id)
+            .populate('Habitat Element')
+            .sort({'Name' : 1})
+            .exec(callback)
+        },
+        monster_instances(callback) {
+            MonsterInstance.find({'Species': req.params.id})
+            .sort({'Name' : 1})
+            .exec(callback)
+        },
+    }, function(err, results) {
+        if(err) {return next(err);}
+        if(results.monster == null) {
+            let err = new Error('Monster not found');
+            err.status = 404;
+            return next(err);
+        }
+        res.render('monster_detail', { title: "Monster Details", monster: results.monster, monster_instances: results.monster_instances});
+    })
 };
 
 exports.monster_create_get = function(req, res, next) {

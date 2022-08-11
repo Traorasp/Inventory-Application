@@ -1,5 +1,8 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+  h1 Monster Instance: #{monsterinstance.Name}
+  
+  p #[Strong Age:] #{monsterinstance.Age}
+  p #[Strong Species: ] 
+    a(href=monsterinstance.Species.url) #{monsterinstance.Species.Name}
