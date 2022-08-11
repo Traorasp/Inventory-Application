@@ -1,5 +1,29 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+  h1 Element: #{element.Name}
+  
+  p #[Strong Weak Against: ]
+    each val, index in element.Weakness 
+      a(href=val.url) #{val.Name}
+      if index < element.Weakness.length - 1
+            |,
+  p #[Strong Strong Against: ]
+    each val, index in element.Strengths 
+      a(href=val.url) #{val.Name}
+      if index < element.Strengths.length - 1
+            |,
+  
+  p= element.Description
+
+  div(style='margin-left:20px;margin-top:20px')
+    h4 Monsters 
+    
+    dl 
+      each monster in element_monsters 
+        dt  
+          a(href=monster.url) #{monster.Name}
+        dd #{monster.Description}
+
+      else 
+        p This element has no monsters 

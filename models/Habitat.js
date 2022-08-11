@@ -10,7 +10,7 @@ var HabitatSchema = Schema({
 HabitatSchema
 .virtual('url')
 .get(function() {
-    return '/catalog/habitat' + this._id;
+    return '/catalog/habitat/' + this._id;
 });
 
 module.exports = mongoose.model('Habitat', HabitatSchema)

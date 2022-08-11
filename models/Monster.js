@@ -14,7 +14,7 @@ var MonsterSchema = Schema({
 MonsterSchema
 .virtual('url')
 .get(function() {
-    return '/catalog/monster' + this._id;
+    return '/catalog/monster/' + this._id;
 });
 
 MonsterSchema

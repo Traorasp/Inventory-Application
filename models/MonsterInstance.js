@@ -11,7 +11,7 @@ var MonsterInstanceSchema = Schema({
 MonsterInstanceSchema
 .virtual('url')
 .get(function() {
-    return '/catalog/monsterinstance' + this._id;
+    return '/catalog/monsterinstance/' + this._id;
 });
 
 module.exports = mongoose.model('MonsterInstance', MonsterInstanceSchema)
