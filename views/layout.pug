@@ -2,6 +2,35 @@ doctype html
 html
   head
     title= title
+    meta(charset='utf-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1')
     link(rel='stylesheet', href='/stylesheets/style.css')
   body
-    block content
+    div
+      div
+        div 
+          block sidebar 
+            ul 
+              li
+                a(href='/catalog') Home    
+              li
+                a(href='/catalog/monsters') All Monsters  
+              li
+                a(href='/catalog/elements') All Elements  
+              li
+                a(href='/catalog/habitats') All Habitats  
+              li
+                a(href='/catalog/monsterinstances') All Monster-Instances
+              li
+                hr
+              li
+                a(href='/catalog/monster/create') Create New Monster  
+              li
+                a(href='/catalog/element/create') Create New Element  
+              li
+                a(href='/catalog/habitat/create') Create New Habitat  
+              li
+                a(href='/catalog/monsterinstance/create') Create New Monster-Instance  
+    
+        div
+          block content

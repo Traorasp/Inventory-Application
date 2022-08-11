@@ -14,10 +14,9 @@ router.get('/', function(req, res, next) {
 
 /// ELEMENT ROUTES ///
 
+router.get('/element/create', elementControllers.element_create_get);
 
-router.get('/elements', elementControllers.element_list);
-
-router.get('/element/:id', elementControllers.element_detail);
+router.post('/element/create', elementControllers.element_create_post);
 
 router.get('/element/:id/delete', elementControllers.element_delete_get);
 
@@ -27,15 +26,15 @@ router.get('/element/:id/update', elementControllers.element_update_get);
 
 router.post('/element/:id/update', elementControllers.element_update_post);
 
-router.get('/element/create', elementControllers.element_create_get);
+router.get('/element/:id', elementControllers.element_detail);
 
-router.post('/element/create', elementControllers.element_create_post);
+router.get('/elements', elementControllers.element_list);
 
 /// HABITAT ROUTES ///
 
-router.get('/habitats', habitatControllers.habitat_list);
+router.get('/habitat/create', habitatControllers.habitat_create_get);
 
-router.get('/habitat/:id', habitatControllers.habitat_detail);
+router.post('/habitat/create', habitatControllers.habitat_create_post);
 
 router.get('/habitat/:id/delete', habitatControllers.habitat_delete_get);
 
@@ -45,15 +44,15 @@ router.get('/habitat/:id/update', habitatControllers.habitat_update_get);
 
 router.post('/habitat/:id/update', habitatControllers.habitat_update_post);
 
-router.get('/habitat/create', habitatControllers.habitat_create_get);
+router.get('/habitat/:id', habitatControllers.habitat_detail);
 
-router.post('/habitat/create', habitatControllers.habitat_create_post);
+router.get('/habitats', habitatControllers.habitat_list);
 
 /// MONSTER ROUTES ///
 
-router.get('/monsters', monsterControllers.monster_list);
+router.get('/monster/create', monsterControllers.monster_create_get);
 
-router.get('/monster/:id', monsterControllers.monster_detail);
+router.post('/monster/create', monsterControllers.monster_create_post);
 
 router.get('/monster/:id/delete', monsterControllers.monster_delete_get);
 
@@ -63,16 +62,15 @@ router.get('/monster/:id/update', monsterControllers.monster_update_get);
 
 router.post('/monster/:id/update', monsterControllers.monster_update_post);
 
-router.get('/monster/create', monsterControllers.monster_create_get);
+router.get('/monster/:id', monsterControllers.monster_detail);
 
-router.post('/monster/create', monsterControllers.monster_create_post);
-
+router.get('/monsters', monsterControllers.monster_list);
 
 /// MONSTERINSTANCE ROUTES ///
 
-router.get('/monsterinstances', monsterinstanceControllers.monsterinstance_list);
+router.get('/monsterinstance/create', monsterinstanceControllers.monsterinstance_create_get);
 
-router.get('/monsterinstance/:id', monsterinstanceControllers.monsterinstance_detail);
+router.post('/monsterinstance/create', monsterinstanceControllers.monsterinstance_create_post);
 
 router.get('/monsterinstance/:id/delete', monsterinstanceControllers.monsterinstance_delete_get);
 
@@ -82,8 +80,8 @@ router.get('/monsterinstance/:id/update', monsterinstanceControllers.monsterinst
 
 router.post('/monsterinstance/:id/update', monsterinstanceControllers.monsterinstance_update_post);
 
-router.get('/monsterinstance/create', monsterinstanceControllers.monsterinstance_create_get);
+router.get('/monsterinstance/:id', monsterinstanceControllers.monsterinstance_detail);
 
-router.post('/monsterinstance/create', monsterinstanceControllers.monsterinstance_create_post);
+router.get('/monsterinstances', monsterinstanceControllers.monsterinstance_list);
 
 module.exports = router;
