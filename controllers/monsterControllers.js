@@ -1,7 +1,10 @@
-let Monster = require('../models/Monster');
-let MonsterInstance = require('../models/MonsterInstance');
+const Monster = require('../models/Monster');
+const MonsterInstance = require('../models/MonsterInstance');
+const Element = require('../models/Element');
+const Habitat = require('../models/Habitat');
 
 let async = require('async');
+const { body, validationResult } = require('express-validator');
 
 exports.monster_list = function(req, res, next) {
     Monster.find().sort({'Name' : 1})
@@ -36,12 +39,91 @@ exports.monster_detail = function(req, res, next) {
 };
 
 exports.monster_create_get = function(req, res, next) {
-    res.render('index', { title: "monster create tests" });
+    async.parallel({
+        habitat(callback) {
+            Habitat.find().sort({"Name": 1})
+            .exec(callback)
+        },
+        element(callback) {
+            Element.find().sort({"Name":1})
+            .exec(callback)
+        },
+    }, function(err, results) {
+        if(err) {return next(err);}
+        res.render('monster_create', {title: "Create Monster", habitats: results.habitat, elements: results.element})
+    }
+    )
 };
 
-exports.monster_create_post = function(req, res, next) {
-    res.render('index', { title: "monster create post tests" });
-};
+exports.monster_create_post = [
+    (req, res, next) => {
+        if(!Array.isArray(req.body.habitats)) {
+            req.body.habitats = typeof req.body.habitats === "undefined" ? [] : [req.body.habitats];
+        }
+        if(!Array.isArray(req.body.elements)) {
+            req.body.elements = typeof req.body.elements === "undefined" ? [] : [req.body.elements];
+        }
+        next();
+    },
+    body("name", "Name must not be empty")
+        .trim()
+        .isLength({min:1})
+        .escape(),
+    body('description', "Description must not be empty")
+        .trim()
+        .isLength({min:1})
+        .escape(),
+    body('price', "Price must not be empty")
+        .isFloat({ min: 1}, "Price must atleast be 1")
+        .escape(),
+    body('habitats.*').escape(),
+    body('elements.*').escape(),
+
+    (req,res,next) => {
+        const errors= validationResult(req);
+
+        const monster = new Monster({
+            Name: req.body.name,
+            Price: req.body.price,
+            Habitat: req.body.habitats,
+            Element: req.body.elements,
+            Description: req.body.description,
+        })
+
+        if(!errors.isEmpty()) {
+            async.parallel({
+                habitat(callback) {
+                    Habitat.find().sort({"Name": 1})
+                    .exec(callback)
+                },
+                element(callback) {
+                    Element.find().sort({"Name":1})
+                    .exec(callback)
+                },
+            }, function(err, results) {
+                if(err) {return next(err);}
+                for (const habitat of results.habitats) {
+                    if(monster.Habitat.includes(habitat._id))
+                        habitat.habitatCheck = "true;"
+                };
+                for (const element of results.elements) {
+                    if(monster.Element.includes(element._id))
+                        element.elementCheck = "true;"
+                };
+                res.render('monster_create', {title: "Create Monster", monster, habitats: results.habitat, elements: results.element, errors: errors.array()})
+            }
+            );
+            return;
+        }
+
+        monster.save((err) => {
+            if(err) {
+                return next(err);
+            }
+            res.redirect(monster.url);
+        })
+    }
+]
 
 exports.monster_delete_get = function(req, res, next) {
     res.render('index', { title: "monster delete tests" });

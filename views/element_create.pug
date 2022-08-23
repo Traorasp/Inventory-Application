@@ -2,4 +2,26 @@ extends layout
 
 block content
   h1= title
-  p Welcome to #{title}
+  form(action="", method="post") 
+    div
+      label(for="element-name") Name: 
+      input(type="text" id="element-name" name="name" required="true" value=(undefine===newElement? '' : newElement.name))
+    div  
+      label(for="element-weakness") Weakness:
+      for element in elements
+          label(for=element._id)  #{element.Name}  
+          input(type="checkbox" value=element._id checked=element.weaknessCheck name="weakness") 
+    div
+      label(for="element-strengths") Strengths: 
+      for element in elements
+          label #{element.Name} 
+          input(type="checkbox" value=element._id checked=element.strengthsCheck name="strengths") 
+    div  
+      label(for="element-description") Description: 
+      textarea(name="description", id="element-description", cols="30", rows="5" required="true" value=(undefine===newElement? '' : newElement.description)) 
+  
+    button(type="submit") Submit
+    if errors
+      ul
+        for error in errors
+          li!= error.msg

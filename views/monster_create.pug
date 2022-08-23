@@ -2,4 +2,29 @@ extends layout
 
 block content
   h1= title
-  p Welcome to #{title}
+  form(action="", method="post") 
+    div 
+      label(for="monster-name") Name:
+      input(type="text", name="name", id="monster-name" required="true" value=(undefine===monster? '' : monster.Name))
+    div
+      label(for="monster-price") Price:
+      input(type="number", name="price", id="monster-price" required="true" value=(undefine===monster? '' : monster.Price))
+    div 
+      label Element:
+      for element in elements
+          label(for=element._id)  #{element.Name}  
+          input(type="checkbox" value=element._id checked=element.elementCheck name="elements") 
+    div
+      label Habitat:
+      for habitat in habitats
+          label(for=habitat._id)  #{habitat.Name}  
+          input(type="checkbox" value=habitat._id checked=habitat.habitatCheck name="habitats") 
+    div
+      label(for="monster-description") Description: 
+      textarea(name="description", id="monster-description", cols="30", rows="5" required="true" value=(undefine===monster? '' : monster.Description)) 
+    div
+      button(type="submit") Submit
+      if errors
+        ul
+          for error in errors
+            li!= error.msg

@@ -1,7 +1,8 @@
 let Habitat = require('../models/Habitat')
 let Monster = require('../models/Monster')
 
-let async = require('async')
+let async = require('async');
+const { body, validationResult } = require('express-validator');
 
 exports.habitat_list = function(req, res, next) {
     Habitat.find().sort({'Name' : 1})
@@ -33,12 +34,43 @@ exports.habitat_detail = function(req, res, next) {
 };
 
 exports.habitat_create_get = function(req, res, next) {
-    res.render('index', { title: "habitat create tests" });
+    res.render('habitat_create', { title: "Create Habitat" });
 };
 
-exports.habitat_create_post = function(req, res, next) {
-    res.render('index', { title: "habitat create post tests" });
-};
+exports.habitat_create_post = [
+    body('name', 'Name must not be empty')
+        .trim()
+        .isLength({ min: 1 })
+        .escape()
+        .withMessage("Name must be specified.")
+        .isAlphanumeric()
+        .withMessage("Name has non-alphanumeric characters."), 
+    body('description', "Description must not be empty")
+        .trim()
+        .isLength({min:1})
+        .escape(),
+
+    (req, res, next) => {
+        const errors = validationResult(req);
+
+        if(!errors.isEmpty()) {
+            res.render('habitat_create', { title: "Create Habitat", habitat: req.body, errors: errors.array() 
+        });
+        return;
+        }
+        const habitat = new Habitat({
+            Name: req.body.name,
+            Description: req.body.description,
+        });
+
+        habitat.save((err) => {
+            if (err) {
+                return next(err);
+            }
+            res.redirect(habitat.url);
+        })
+    },
+]
 
 exports.habitat_delete_get = function(req, res, next) {
     res.render('index', { title: "habitat delete tests" });
