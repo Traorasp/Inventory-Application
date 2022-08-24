@@ -2,4 +2,19 @@ extends layout
 
 block content
   h1= title
-  p Welcome to #{title}
+  if monsters.length
+    p #[strong Delete the following monsters before deleting this habitat.] 
+
+    div  
+      each monster in monsters
+        dt 
+          a(href=monster.url) #{monster.Name}
+
+  else 
+      p Do you really want to delete this habitat?
+
+      form(action="", method="post")  
+        div 
+          input(type="hidden" name="habitatid" required="true" value=habitat._id)
+
+          button(type="submit") Delete 

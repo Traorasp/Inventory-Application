@@ -2,4 +2,26 @@ extends layout
 
 block content
   h1= title
-  p Welcome to #{title}
+  if relatedElements.length 
+    p #[strong Delete the following element relations to other elements before deleting this element.] 
+
+    div 
+      each relation in relatedElements
+        dt 
+          a(href=relation.url) #{relation.Name}
+  if monsters.length
+    p #[strong Delete the following monsters before deleting this element.] 
+
+    div  
+      each monster in monsters
+        dt 
+          a(href=monster.url) #{monster.Name}
+
+  else 
+      p Do you really want to delete this Element?
+
+      form(action="", method="post")  
+        div 
+          input(type="hidden" name="elementid" required="true" value=element._id)
+
+          button(type="submit") Delete 

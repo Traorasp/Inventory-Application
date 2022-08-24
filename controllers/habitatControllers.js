@@ -73,12 +73,53 @@ exports.habitat_create_post = [
 ]
 
 exports.habitat_delete_get = function(req, res, next) {
-    res.render('index', { title: "habitat delete tests" });
-};
+    async.parallel({
+        habitat(callback) {
+            Habitat.findById(req.params.id)
+            .exec(callback)
+        },
+        monsters(callback) {
+            Monster.find({'Habitat' : req.params.id})
+            .exec(callback)
+        },
+    }, 
+    function(err, results) {
+        if(err) {return next(err);}
+        res.render('habitat_delete', { 
+            title: "Delete " + results.habitat.Name, 
+            habitat: results.habitat, 
+            monsters: results.monsters
+        });
+})};
 
 exports.habitat_delete_post = function(req, res, next) {
-    res.render('index', { title: "habitat delete post tests" });
-};
+    async.parallel({
+        habitat(callback) {
+            Habitat.findById(req.params.id)
+            .exec(callback)
+        },
+        monsters(callback) {
+            Monster.find({'Habitat' : req.params.id})
+            .exec(callback)
+        },
+    }, 
+    function(err, results) {
+        if(err) {return next(err);}
+        if(results.monsters.length > 0) {
+            res.render('habitat_delete', { 
+                title: "Delete " + results.habitat.Name, 
+                habitat: results.habitat, 
+                monsters: results.monsters
+            });
+            return;
+        }
+        Habitat.findByIdAndRemove(req.body.habitatid, (err) => {
+            if(err) {
+                return next(err);
+            }
+            res.redirect('/catalog/habitats')
+        })
+})};
 
 exports.habitat_update_get = function(req, res, next) {
     res.render('index', { title: "habitat update tests" });

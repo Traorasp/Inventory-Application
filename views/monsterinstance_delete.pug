@@ -1,5 +1,12 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+  h1= title 
+  
+  p Do you really want to delete this monster instance?
+
+  form(action="", method="post")  
+    div 
+      input(type="hidden" name="monsterInstanceid" required="true" value=monsterinstance._id)
+
+      button(type="submit") Delete 

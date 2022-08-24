@@ -104,12 +104,65 @@ exports.element_create_post = [
 ];
 
 exports.element_delete_get = function(req, res, next) {
-    res.render('index', { title: "element delete tests" });
+    async.parallel({
+        element(callback) {
+            Element.findById(req.params.id)
+            .exec(callback)
+        },
+        relatedElements(callback) {
+            Element.find({"$or" : [{"Weakness" : req.params.id}, {"Strengths" : req.params.id}]})
+            .exec(callback)
+        },
+        monsters(callback) {
+            Monster.find({'Element' : req.params.id}, 'Name Description')
+            .exec(callback)
+        },
+    }, 
+    function(err, results) {
+        if(err) {return next(err);}
+        res.render('element_delete', { 
+            title: "Delete " + results.element.Name, 
+            element: results.element, 
+            relatedElements: results.relatedElements, 
+            monsters: results.monsters
+        });
+})
 };
 
 exports.element_delete_post = function(req, res, next) {
-    res.render('index', { title: "element delete post tests" });
-};
+    async.parallel({
+        element(callback) {
+            Element.findById(req.params.id)
+            .exec(callback)
+        },
+        relatedElements(callback) {
+            Element.find({"$or" : [{"Weakness" : req.params.id}, {"Strengths" : req.params.id}]})
+            .exec(callback)
+        },
+        monsters(callback) {
+            Monster.find({"Element" : req.params.id})
+            .exec(callback)
+        },
+    }, 
+    function(err, results) {
+        if(err) {return next(err);}
+
+        if(results.monsters.length > 0 || results.relatedElements.length > 0) {
+            res.render('element_delete', { 
+                title: "Delete " + results.element.Name, 
+                element: results.element, 
+                relatedElements: results.relatedElements, 
+                monsters: results.monsters
+            });
+            return;
+        }
+        Element.findByIdAndRemove(req.body.elementid, (err) => {
+            if(err) {
+                return next(err);
+            }
+            res.redirect("/catalog/elements");
+        })
+})};
 
 exports.element_update_get = function(req, res, next) {
     res.render('index', { title: "element update tests" });

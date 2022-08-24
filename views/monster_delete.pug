@@ -2,4 +2,19 @@ extends layout
 
 block content
   h1= title
-  p Welcome to #{title}
+  if monsterInstances.length
+    p #[strong Delete the following monster instances before deleting this monster.] 
+
+    div  
+      each instances in monsterInstances
+        dt 
+          a(href=instances.url) #{instances.Name}
+
+  else 
+      p Do you really want to delete this monster?
+
+      form(action="", method="post")  
+        div 
+          input(type="hidden" name="monsterid" required="true" value=monster._id)
+
+          button(type="submit") Delete 

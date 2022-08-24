@@ -18,7 +18,7 @@ exports.monsterinstance_detail = function(req, res, next) {
     .populate('Species')
     .exec(function(err, monsterinstance) {
         if(err) {return next(err);}
-        res.render('monsterinstance_detail', { title: "Monster Instance Details", monsterinstance: monsterinstance});
+        res.render('monsterinstance_detail', { title: "Monster Instance Details", monsterinstance});
     })
 };
 
@@ -80,11 +80,20 @@ exports.monsterinstance_create_post = [
 ];
 
 exports.monsterinstance_delete_get = function(req, res, next) {
-    res.render('index', { title: "monsterinstance delete tests" });
+    MonsterInstance.findById(req.params.id)
+    .exec(function(err, monsterinstance) {
+        if(err) {return next(err);}
+        res.render('monsterinstance_delete', { title: "Delete " + monsterinstance.Name, monsterinstance});
+    })
 };
 
 exports.monsterinstance_delete_post = function(req, res, next) {
-    res.render('index', { title: "monsterinstance delete post tests" });
+    MonsterInstance.findByIdAndRemove(req.body.monsterInstanceid, (err) => {
+        if(err) {
+            return next(err);
+        }
+        res.redirect("/catalog/monsterinstances");
+        })
 };
 
 exports.monsterinstance_update_get = function(req, res, next) {

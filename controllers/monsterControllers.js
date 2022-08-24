@@ -126,12 +126,53 @@ exports.monster_create_post = [
 ]
 
 exports.monster_delete_get = function(req, res, next) {
-    res.render('index', { title: "monster delete tests" });
-};
+    async.parallel({
+        monster(callback) {
+            Monster.findById(req.params.id)
+            .exec(callback)
+        },
+        monsterInstances(callback) {
+            MonsterInstance.find({'Species' : req.params.id})
+            .exec(callback)
+        },
+    }, 
+    function(err, results) {
+        if(err) {return next(err);}
+        res.render('monster_delete', { 
+            title: "Delete " + results.monster.Name, 
+            monsterInstances: results.monsterInstances, 
+            monster: results.monster
+        });
+})};
 
 exports.monster_delete_post = function(req, res, next) {
-    res.render('index', { title: "monster delete post tests" });
-};
+    async.parallel({
+        monster(callback) {
+            Monster.findById(req.params.id)
+            .exec(callback)
+        },
+        monsterInstances(callback) {
+            MonsterInstance.find({'Species' : req.params.id})
+            .exec(callback)
+        },
+    }, 
+    function(err, results) {
+        if(err) {return next(err);}
+        if(results.monsterInstances.length > 0) {
+            res.render('monster_delete', { 
+                title: "Delete " + results.monster.Name, 
+                monsterInstances: results.monsterInstances, 
+                monster: results.monster
+            });
+            return;
+        }
+        Monster.findByIdAndRemove(req.body.monsterid, (err) => {
+            if(err) {
+                return next(err);
+            }
+            res.redirect("/catalog/monsters");
+        })
+})};
 
 exports.monster_update_get = function(req, res, next) {
     res.render('index', { title: "monster update tests" });
