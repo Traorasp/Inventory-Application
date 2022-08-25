@@ -102,11 +102,11 @@ exports.monster_create_post = [
                 },
             }, function(err, results) {
                 if(err) {return next(err);}
-                for (const habitat of results.habitats) {
+                for (const habitat of results.habitat) {
                     if(monster.Habitat.includes(habitat._id))
                         habitat.habitatCheck = "true;"
                 };
-                for (const element of results.elements) {
+                for (const element of results.element) {
                     if(monster.Element.includes(element._id))
                         element.elementCheck = "true;"
                 };
@@ -175,9 +175,104 @@ exports.monster_delete_post = function(req, res, next) {
 })};
 
 exports.monster_update_get = function(req, res, next) {
-    res.render('index', { title: "monster update tests" });
+    async.parallel({
+        monster(callback) {
+            Monster.findById(req.params.id)
+            .exec(callback)
+        },
+        habitat(callback) {
+            Habitat.find().sort({"Name": 1})
+            .exec(callback)
+        },
+        element(callback) {
+            Element.find().sort({"Name":1})
+            .exec(callback)
+        },
+    }, function(err, results) {
+        if(err) {return next(err);}
+        for (const habitat of results.habitat) {
+            if(results.monster.Habitat.includes(habitat._id))
+                habitat.habitatCheck = "true;"
+        };
+        for (const element of results.element) {
+            if(results.monster.Element.includes(element._id))
+                element.elementCheck = "true;"
+        };
+        res.render('monster_create', {title: "Update Monster", monster: results.monster, habitats: results.habitat, elements: results.element})
+    })
 };
 
-exports.monster_update_post = function(req, res, next) {
-    res.render('index', { title: "monster delete post tests" });
-};
+exports.monster_update_post = [
+    (req, res, next) => {
+        if(!Array.isArray(req.body.habitats)) {
+            req.body.habitats = typeof req.body.habitats === "undefined" ? [] : [req.body.habitats];
+        }
+        if(!Array.isArray(req.body.elements)) {
+            req.body.elements = typeof req.body.elements === "undefined" ? [] : [req.body.elements];
+        }
+        next();
+    },
+    body("name", "Name must not be empty")
+        .trim()
+        .isLength({min:1})
+        .escape(),
+    body('description', "Description must not be empty")
+        .trim()
+        .isLength({min:1})
+        .escape(),
+    body('price', "Price must not be empty")
+        .isFloat({ min: 1}, "Price must atleast be 1")
+        .escape(),
+    body('habitats.*').escape(),
+    body('elements.*').escape(),
+
+    (req,res,next) => {
+        const errors= validationResult(req);
+
+        const monster = new Monster({
+            Name: req.body.name,
+            Price: req.body.price,
+            Habitat: req.body.habitats,
+            Element: req.body.elements,
+            Description: req.body.description,
+            _id: req.params.id,
+        })
+
+        if(!errors.isEmpty()) {
+            async.parallel({
+                monster(callback) {
+                    Monster.findById(req.params.id)
+                    .exec(callback)
+                },
+                habitat(callback) {
+                    Habitat.find().sort({"Name": 1})
+                    .exec(callback)
+                },
+                element(callback) {
+                    Element.find().sort({"Name":1})
+                    .exec(callback)
+                },
+            }, function(err, results) {
+                if(err) {return next(err);}
+                for (const habitat of results.habitat) {
+                    if(monster.Habitat.includes(habitat._id))
+                        habitat.habitatCheck = "true;"
+                };
+                for (const element of results.element) {
+                    if(monster.Element.includes(element._id))
+                        element.elementCheck = "true;"
+                };
+                res.render('monster_create', {title: "Update Monster", monster: results.Monster, habitats: results.habitat, elements: results.element, errors: errors.array()})
+            }
+            );
+            return;
+        }
+
+        Monster.findByIdAndUpdate(req.params.id, monster,{}, (err, themonster) => {
+            if(err) {
+                return next(err);
+            }
+            res.redirect(themonster.url);
+        })
+    }
+]

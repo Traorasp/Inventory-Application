@@ -2,6 +2,7 @@ const MonsterInstance = require('../models/MonsterInstance')
 const Monster = require('../models/Monster');
 
 const { body, validationResult } = require('express-validator');
+let async = require('async');
 
 exports.monsterinstance_list = function(req, res, next) {
     MonsterInstance.find()
@@ -97,9 +98,84 @@ exports.monsterinstance_delete_post = function(req, res, next) {
 };
 
 exports.monsterinstance_update_get = function(req, res, next) {
-    res.render('index', { title: "monsterinstance update tests" });
+    
+    async.parallel({
+        monsterInstance(callback) {
+            MonsterInstance.findById(req.params.id)
+            .exec(callback)
+        },
+        monsters(callback) {
+            Monster.find().sort({"Name": 1})
+            .exec(callback)
+        }
+    },
+    function(err, results) {
+        if(err) {return next(err);}
+        for(const monster in results.monsters) {
+            if(results.monsterInstance.Species === monster._id) {
+                monster.selected = "true";
+            }
+        }
+        res.render('monsterinstance_create', { title: "Update Monster instance", monsters: results.monsters, monsterInstance: results.monsterInstance});
+    }
+    )
 };
 
-exports.monsterinstance_update_post = function(req, res, next) {
-    res.render('index', { title: "monsterinstance delete post tests" });
-};
+exports.monsterinstance_update_post = [
+    (req, res, next) => {
+        if(!Array.isArray(req.body.species)) {
+            req.body.species = typeof req.body.species === "undefined" ? [] : [req.body.species]; 
+        }
+        next();
+    },
+    body("name", "Name must not be empty.")
+        .trim()
+        .isLength({min:1})
+        .escape(),
+    body('age', "Age must not be empty")
+        .isFloat({ min: 0}, "Age must atleast be atleast 0")
+        .escape(),
+    body('species').escape(),
+
+    (req,res,next) => {
+        const errors = validationResult(req);
+
+        const monsterInstance = new MonsterInstance({
+            Name: req.body.name,
+            Age: req.body.age,
+            Species: req.body.species,
+            _id: req.params.id
+        })
+
+        if(!errors.isEmpty()) {
+            async.parallel({
+                monsterInstance(callback) {
+                    MonsterInstance.findById(req.params.id)
+                    .exec(callback)
+                },
+                monsters(callback) {
+                    Monster.find().sort({"Name": 1})
+                    .exec(callback)
+                }
+            },
+            function(err, results) {
+                if(err) {return next(err);}
+                for(const monster in results.monsters) {
+                    if(results.monsterInstance.Species === monster._id) {
+                        monster.selected = "true";
+                    }
+                }
+                res.render('monsterinstance_create', { title: "Update Monster instance", monsters: results.monsters, monsterInstance: results.monsterInstance, errors: errors.array()});
+            }
+            )
+            return;
+        }
+
+        MonsterInstance.findByIdAndUpdate(req.params.id, monsterInstance, {}, (err, theMonsterInstance) => {
+            if(err) {
+                return next(err);
+            }
+            res.redirect(theMonsterInstance.url);
+        });
+    },
+];

@@ -38,14 +38,14 @@ exports.habitat_create_get = function(req, res, next) {
 };
 
 exports.habitat_create_post = [
-    body('name', 'Name must not be empty')
+    body('Name', 'Name must not be empty')
         .trim()
         .isLength({ min: 1 })
         .escape()
         .withMessage("Name must be specified.")
         .isAlphanumeric()
         .withMessage("Name has non-alphanumeric characters."), 
-    body('description', "Description must not be empty")
+    body('Description', "Description must not be empty")
         .trim()
         .isLength({min:1})
         .escape(),
@@ -54,13 +54,12 @@ exports.habitat_create_post = [
         const errors = validationResult(req);
 
         if(!errors.isEmpty()) {
-            res.render('habitat_create', { title: "Create Habitat", habitat: req.body, errors: errors.array() 
-        });
-        return;
+            res.render('habitat_create', { title: "Create Habitat", habitat: req.body, errors: errors.array()}) 
+            return;
         }
         const habitat = new Habitat({
-            Name: req.body.name,
-            Description: req.body.description,
+            Name: req.body.Name,
+            Description: req.body.Description,
         });
 
         habitat.save((err) => {
@@ -121,10 +120,46 @@ exports.habitat_delete_post = function(req, res, next) {
         })
 })};
 
-exports.habitat_update_get = function(req, res, next) {
-    res.render('index', { title: "habitat update tests" });
+exports.habitat_update_get = (req, res, next) => {
+    Habitat.findById(req.params.id)
+    .exec(function(err, habitat) {
+        if(err) {return next(err);}
+        res.render('habitat_create', { title: "Update Habitat", habitat}) 
+    })
 };
 
-exports.habitat_update_post = function(req, res, next) {
-    res.render('index', { title: "habitat delete post tests" });
-};
+exports.habitat_update_post = [
+    body('Name', 'Name must not be empty')
+        .trim()
+        .isLength({ min: 1 })
+        .escape()
+        .withMessage("Name must be specified.")
+        .isAlphanumeric()
+        .withMessage("Name has non-alphanumeric characters."), 
+    body('Description', "Description must not be empty")
+        .trim()
+        .isLength({min:1})
+        .escape(),
+
+    (req, res, next) => {
+        const errors = validationResult(req);
+
+        if(!errors.isEmpty()) {
+            res.render('habitat_create', { title: "Update Habitat", habitat: req.body, errors: errors.array() 
+        });
+        return;
+        }
+        const habitat = new Habitat({
+            Name: req.body.Name,
+            Description: req.body.Description,
+            _id: req.params.id
+        });
+
+        Habitat.findByIdAndUpdate(req.params.id, habitat,{},(err, thehabitat) => {
+            if (err) {
+                return next(err);
+            }
+            res.redirect(thehabitat.url);
+        })
+    },
+];

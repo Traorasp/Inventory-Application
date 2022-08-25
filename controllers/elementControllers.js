@@ -81,10 +81,10 @@ exports.element_create_post = [
                 if(err) {return next(err);}
 
                 for (const element of list_elements) {
-                    if (newElement.weakness.includes(element._id)) {
+                    if (newElement.Weakness.includes(element._id)) {
                         element.weaknessCheck = "true";
                     }
-                    if (newElement.strengths.includes(element._id)) {
+                    if (newElement.Strengths.includes(element._id)) {
                         element.strengthsCheck = "true";
                     }
                 }
@@ -152,7 +152,8 @@ exports.element_delete_post = function(req, res, next) {
                 title: "Delete " + results.element.Name, 
                 element: results.element, 
                 relatedElements: results.relatedElements, 
-                monsters: results.monsters
+                monsters: results.monsters,
+                newElement: results.element,
             });
             return;
         }
@@ -165,9 +166,99 @@ exports.element_delete_post = function(req, res, next) {
 })};
 
 exports.element_update_get = function(req, res, next) {
-    res.render('index', { title: "element update tests" });
+    async.parallel({
+        element(callback) {
+            Element.findById(req.params.id)
+            .exec(callback)
+        },
+        elementList(callback) {
+            Element.find()
+            .exec(callback)
+        },
+    }, 
+    function(err, results) {
+        if(err) {return next(err);}
+        for (const elem of results.elementList) {
+            if (results.element.Weakness.includes(elem._id)) {
+                elem.weaknessCheck = "true";
+            }
+            if (results.element.Strengths.includes(elem._id)) {
+                elem.strengthsCheck = "true";
+            }
+        }
+        res.render('element_create', {
+            title: "Update Element", 
+            newElement: results.element,
+            elements: results.elementList});
+    })
 };
 
-exports.element_update_post = function(req, res, next) {
-    res.render('index', { title: "element delete post tests" });
-};
+exports.element_update_post = [
+    (req, res, next) => {
+        if(!Array.isArray(req.body.strengths)) {
+            req.body.strengths = typeof req.body.strengths === "undefined"? [] : [req.body.strengths];
+        }
+        if(!Array.isArray(req.body.weakness)) {
+            req.body.weakness = typeof req.body.weakness === "undefined"? [] : [req.body.weakness];
+        }
+        next();
+    },
+    body("name", "Name must not be empty")
+    .trim()
+    .isLength({min:1})
+    .escape(),
+    body('description', "Description must not be empty")
+    .trim()
+    .isLength({min:1})
+    .escape(),
+    body('weakness.*').escape(),
+    body('strengths.*').escape(),
+
+    (req, res, next) => {
+        const errors = validationResult(req);
+      
+        const newElement = new Element({
+            Name: req.body.name,
+            Weakness: req.body.weakness,
+            Strengths: req.body.strengths,
+            Description: req.body.description,
+            _id: req.params.id
+        });
+
+        if(!errors.isEmpty()) {
+            async.parallel({
+                element(callback) {
+                    Element.findById(req.params.id)
+                    .exec(callback)
+                },
+                elementList(callback) {
+                    Element.find()
+                    .exec(callback)
+                },
+            }, 
+            function(err, results) {
+                if(err) {return next(err);}
+                for (const elem of results.elementList) {
+                    if (results.element.Weakness.includes(elem._id)) {
+                        elem.weaknessCheck = "true";
+                    }
+                    if (results.element.Strengths.includes(elem._id)) {
+                        elem.strengthsCheck = "true";
+                    }
+                }
+                res.render('element_create', {
+                    title: "Update Element", 
+                    elements: results.elementList,
+                    newElement,
+                    errors: errors.array(),});
+            })  
+            return;
+        }
+        Element.findByIdAndUpdate(req.params.id, newElement, {}, (err, theelement) => {
+            if (err) {
+                return next(err);
+            }
+            res.redirect(theelement.url)
+        });
+    },
+];

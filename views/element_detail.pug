@@ -13,8 +13,7 @@ block content
       a(href=val.url) #{val.Name}
       if index < element.Strengths.length - 1
             |,
-  
-  p= element.Description
+  p #[Strong Description: ] #{element.Description}
 
   div(style='margin-left:20px;margin-top:20px')
     h4 Monsters 
@@ -30,3 +29,5 @@ block content
   hr
   p
     a(href=element.url+'/delete') Delete element
+  p
+    a(href=element.url+'/update') Update element

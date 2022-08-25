@@ -21,7 +21,7 @@ block content
           input(type="checkbox" value=habitat._id checked=habitat.habitatCheck name="habitats") 
     div
       label(for="monster-description") Description: 
-      textarea(name="description", id="monster-description", cols="30", rows="5" required="true" value=(undefine===monster? '' : monster.Description)) 
+      textarea(name="description", id="monster-description", cols="30", rows="5" required="true") #{undefine===monster? '' : monster.Description}  
     div
       button(type="submit") Submit
       if errors
