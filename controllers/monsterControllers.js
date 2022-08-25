@@ -6,6 +6,27 @@ const Habitat = require('../models/Habitat');
 let async = require('async');
 const { body, validationResult } = require('express-validator');
 
+exports.index = (req, res) =>{
+  async.parallel({
+    monster_count(callback) {
+      Monster.countDocuments({}, callback); // Pass an empty object as match condition to find all documents of this collection
+    },
+    monster_instance_count(callback) {
+      MonsterInstance.countDocuments({}, callback);
+    },
+    habitat_count(callback) {
+      Habitat.countDocuments({}, callback);
+    },
+    element_count(callback) {
+      Element.countDocuments({}, callback);
+    }
+  },
+  (err, results) => {
+    res.render('index', { title: 'Mystic Pet Shop', error: err, data: results });
+  });
+};
+
+
 exports.monster_list = function(req, res, next) {
     Monster.find().sort({'Name' : 1})
     .exec(function(err, list_monsters) {

@@ -2,4 +2,17 @@ extends layout
 
 block content
   h1= title
-  p Welcome to #{title}
+  p Welcome to #[em Mystic Pet Shop]
+
+  h1 Dynamic content
+
+  if error
+    p Error getting dynamic content.
+  else
+    p The shop has the following record counts:
+
+    ul
+      li #[strong Monsters:] !{data.monster_count}
+      li #[strong Monster Instances:] !{data.monster_instance_count}
+      li #[strong Elements:] !{data.element_count}
+      li #[strong Habitats:] !{data.habitat_count}

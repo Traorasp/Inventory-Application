@@ -7,9 +7,7 @@ let monsterControllers = require('../controllers/monsterControllers')
 let monsterinstanceControllers = require('../controllers/monsterinstanceControllers')
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
-});
+router.get('/', monsterControllers.index)
 
 
 /// ELEMENT ROUTES ///
